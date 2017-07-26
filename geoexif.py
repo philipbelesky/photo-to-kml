@@ -17,10 +17,23 @@ parser.add_argument("filenames", type=argparse.FileType('rb'),
                     nargs='+', # Gather multiple CLI args into a list
                     help="The file path of the photo to parse")
 
+parser.add_argument("--name", type=str, default="Photo Overlay", dest="name",
+                    help="Name of the generated KML file")
+
+parser.add_argument("--read-altitude", type=bool, default=False,
+                    dest="read_altitude",
+                    help="Use the altitude coordinates as specified by the " \
+                         "photo's geotags (typically 0 as not recorded).")
+
+parser.add_argument("--default-altitude", type=float, default=5.0,
+                    dest="default_altitude",
+                    help="Specifies the altitude to mark the overlays with " \
+                         "(If not reading the altitude co-ordinates)")
+
 args = parser.parse_args()
 
 
-def add_photo_to_overlay(kml, photo_file, index):
+def add_photo_to_overlay(kml, photo_file, index, altitude):
     """Adds the specified photo to the KML file to be exported"""
 
     unique_id = "photo-" + str(index)
@@ -31,7 +44,7 @@ def add_photo_to_overlay(kml, photo_file, index):
         return
 
     kml, overlay = write_overlay_node(kml, photo_file.name, unique_id)
-    kml, overlay = write_camera_node(kml, overlay, exif_info, coordinates)
+    kml, overlay = write_camera_node(kml, overlay, exif_info, coordinates, altitude)
     kml, overlay = write_view_volume_node(kml, overlay, exif_info)
 
     e_point = kml.createElement('point')
@@ -45,14 +58,19 @@ def add_photo_to_overlay(kml, photo_file, index):
     document.appendChild(overlay)
 
 
-
 def main():
     kml_out = create_kml()
 
-    for i, file in enumerate(args.filenames):
-        add_photo_to_overlay(kml_out, file, i)
+    if args.read_altitude:
+        altitude = None # Don't specify and override
+    else:
+        altitude = args.default_altitude
 
-    kml = open("test.kml", 'wb')
+    for i, file in enumerate(args.filenames):
+        add_photo_to_overlay(kml_out, file, i, altitude)
+
+    kml_name = args.name + ".kml"
+    kml = open(kml_name, 'wb')
     kml_contents = kml_out.toprettyxml('  ', newl='\n', encoding='utf-8')
     kml.write(kml_contents)
 

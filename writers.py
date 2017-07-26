@@ -1,6 +1,6 @@
 
 
-def write_overlay_node(kml_file, file_name, file_identifier):
+def write_overlay_node(kml_file, file_path, file_name, file_identifier):
 
     photo_overlay = kml_file.createElement('PhotoOverlay')
     photo_overlay.setAttribute('id', file_identifier)
@@ -17,7 +17,7 @@ def write_overlay_node(kml_file, file_name, file_identifier):
 
     e_icon = kml_file.createElement('Icon')
     e_href = kml_file.createElement('href')
-    e_href.appendChild(kml_file.createTextNode(file_name))
+    e_href.appendChild(kml_file.createTextNode(file_path))
     e_icon.appendChild(e_href)
     photo_overlay.appendChild(e_icon)
 
@@ -80,3 +80,15 @@ def write_view_volume_node(kml_file, photo_overlay, exif_info):
     photo_overlay.appendChild(e_viewvolume)
 
     return kml_file, photo_overlay
+
+
+def write_coordinates(kml, element, coordinates):
+    e_point = kml.createElement('Point')
+    e_coordinates = kml.createElement('coordinates')
+    e_coordinates.appendChild(kml.createTextNode('%s,%s,%s' %(coordinates[1],
+                                                              coordinates[0],
+                                                              coordinates[2])))
+    e_point.appendChild(e_coordinates)
+    element.appendChild(e_point)
+
+    return kml, element

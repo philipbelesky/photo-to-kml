@@ -30,17 +30,17 @@ def add_photo_to_overlay(kml, photo_file, index):
         print("File %s has no GPS Coordinates" % photo_file.name)
         return
 
-    kml, overlay = write_overlay_node(photo_file.name, unique_id)
+    kml, overlay = write_overlay_node(kml, photo_file.name, unique_id)
     kml, overlay = write_camera_node(kml, overlay, exif_info, coordinates)
     kml, overlay = write_view_volume_node(kml, overlay, exif_info)
 
-    point = kml.createElement('point')
-    coordinates = kml.createElement('coordinates')
-    coordinates.appendChild(kml.createTextNode('%s,%s,%s' %(coordinates[1],
-                                                            coordinates[0],
-                                                            coordinates[2])))
-    point.appendChild(coordinates)
-    overlay.appendChild(point)
+    e_point = kml.createElement('point')
+    e_coordinates = kml.createElement('coordinates')
+    e_coordinates.appendChild(kml.createTextNode('%s,%s,%s' %(coordinates[1],
+                                                              coordinates[0],
+                                                              coordinates[2])))
+    e_point.appendChild(e_coordinates)
+    overlay.appendChild(e_point)
     document = kml.getElementsByTagName('Document')[0]
     document.appendChild(overlay)
 
